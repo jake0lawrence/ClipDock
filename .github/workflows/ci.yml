@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tauri build
+        run: cargo tauri build --target x86_64-pc-windows-msvc
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: clipdock-windows
+          path: src-tauri/target/release/bundle/msi/*.msi

@@ -27,3 +27,5 @@ rusqlite = { version = "0.31", features = ["bundled"] }
 arboard = "3"
 tokio = { version = "1", features = ["sync"] }
 tauri-plugin-global-shortcut = "2"
+anyhow = "1"
+parking_lot = "0.12"
