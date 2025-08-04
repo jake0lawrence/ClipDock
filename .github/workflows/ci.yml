@@ -11,6 +11,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --locked
       - name: Tauri build
         run: cargo tauri build --target x86_64-pc-windows-msvc
       - name: Upload artifacts
