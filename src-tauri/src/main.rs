@@ -3,16 +3,25 @@
 
 use rusqlite::Connection;
 use tokio::sync::broadcast;
-use std::sync::Mutex;
 use tauri::Manager;
+use parking_lot::RwLock;
 
 mod db;
 mod clipboard;
 mod hotkeys;
+mod autostart;
 
-struct AppState {
-    conn: Mutex<Connection>,
-    notifier: broadcast::Sender<()>,
+pub struct AppState {
+    pub conn: Connection,
+    pub notifier: broadcast::Sender<()>,
+    pub settings: RwLock<Settings>,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Default, Clone)]
+pub struct Settings {
+    pub dark: bool,
+    pub history: usize,
+    pub autostart: bool,
 }
 
 fn main() {
@@ -24,26 +33,42 @@ fn main() {
     clipboard::spawn(conn_for_thread, tx.clone());
 
     tauri::Builder::default()
-        .manage(AppState { conn: Mutex::new(conn), notifier: tx })
+        .manage(AppState { conn, notifier: tx, settings: RwLock::new(Settings::default()) })
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .setup(|app| {
             hotkeys::register(&app.app_handle());
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_clips, toggle_pin])
+        .invoke_handler(tauri::generate_handler![get_clips, toggle_pin, set_autostart, save_settings, load_settings])
         .run(tauri::generate_context!())
         .expect("error while running app");
 }
 
 #[tauri::command]
 fn get_clips(state: tauri::State<'_, AppState>) -> Vec<db::Clip> {
-    let conn = state.conn.lock().unwrap();
-    db::all(&conn).unwrap_or_default()
+    db::all(&state.conn).unwrap_or_default()
 }
 
 #[tauri::command]
 fn toggle_pin(id: i64, state: tauri::State<'_, AppState>) {
-    let conn = state.conn.lock().unwrap();
-    let _ = db::toggle_pin(&conn, id);
+    let _ = db::toggle_pin(&state.conn, id);
+}
+
+#[tauri::command]
+async fn set_autostart(enable: bool, state: tauri::State<'_, AppState>) -> Result<(), String> {
+    autostart::apply(if enable { autostart::AutoStart::Enable } else { autostart::AutoStart::Disable })
+        .map_err(|e| e.to_string())?;
+    state.settings.write().autostart = enable;
+    Ok(())
+}
+
+#[tauri::command]
+async fn save_settings(new: Settings, state: tauri::State<'_, AppState>) {
+    *state.settings.write() = new;
+}
+
+#[tauri::command]
+async fn load_settings(state: tauri::State<'_, AppState>) -> Settings {
+    state.settings.read().clone()
 }
 
