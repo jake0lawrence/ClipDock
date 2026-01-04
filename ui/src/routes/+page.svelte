@@ -1,6 +1,7 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+  import Palette from '../components/Palette.svelte';
+</script>
 
-<h1 class="text-4xl font-bold text-purple-500">
-  Tailwind is alive 🎉
-</h1>
+<div class="grid place-items-center min-h-screen bg-zinc-900">
+  <Palette />
+</div>
