@@ -14,3 +14,7 @@ export async function toggle(id:number) {
   refresh();
 }
 
+export async function copyToClipboard(text:string) {
+  await invoke('copy_to_clipboard', { text });
+}
+

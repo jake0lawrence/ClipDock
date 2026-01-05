@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { clips, refresh, toggle } from '../stores';
+  import { clips, refresh, toggle, copyToClipboard } from '../stores';
   import { onMount } from 'svelte';
   import Fuse from 'fuse.js';
   let query = '';
@@ -25,7 +25,12 @@
   <ul class="space-y-1 max-h-80 overflow-auto">
     {#each filtered as clip}
       <li class="flex items-center justify-between hover:bg-zinc-700 p-2 rounded">
-        <span class="truncate">{clip.text}</span>
+        <span
+          class="truncate cursor-pointer flex-1"
+          on:click={() => copyToClipboard(clip.text)}
+        >
+          {clip.text}
+        </span>
         <button on:click={() => toggle(clip.id)}>
           {clip.pinned ? '★' : '☆'}
         </button>

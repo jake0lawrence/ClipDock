@@ -39,7 +39,7 @@ fn main() {
             hotkeys::register(&app.app_handle());
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_clips, toggle_pin, set_autostart, save_settings, load_settings])
+        .invoke_handler(tauri::generate_handler![get_clips, toggle_pin, set_autostart, save_settings, load_settings, copy_to_clipboard])
         .run(tauri::generate_context!())
         .expect("error while running app");
 }
@@ -70,5 +70,10 @@ async fn save_settings(new: Settings, state: tauri::State<'_, AppState>) {
 #[tauri::command]
 async fn load_settings(state: tauri::State<'_, AppState>) -> Settings {
     state.settings.read().clone()
+}
+
+#[tauri::command]
+async fn copy_to_clipboard(text: String) -> Result<(), String> {
+    clipboard::write(&text)
 }
 
