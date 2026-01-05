@@ -4,7 +4,8 @@ use std::str::FromStr;
 
 pub fn register(app: &tauri::AppHandle) {
     let handle = app.global_shortcut().clone();
-    let shortcut = Shortcut::from_str("Ctrl+Shift+V").unwrap();
+    let shortcut = Shortcut::from_str("Ctrl+Shift+V")
+        .expect("Failed to parse hardcoded shortcut Ctrl+Shift+V");
     handle
         .on_shortcut(shortcut, move |app, _, _| {
             if let Some(w) = app.get_webview_window("main") {
@@ -16,9 +17,10 @@ pub fn register(app: &tauri::AppHandle) {
                 }
             }
         })
-        .expect("register shortcut");
+        .expect("Failed to register Ctrl+Shift+V shortcut");
 
-    let quick = Shortcut::from_str("Ctrl+Alt+V").unwrap();
+    let quick = Shortcut::from_str("Ctrl+Alt+V")
+        .expect("Failed to parse hardcoded shortcut Ctrl+Alt+V");
     let handle = app.global_shortcut().clone();
     handle
         .on_shortcut(quick, move |app, _, _| {
@@ -31,6 +33,6 @@ pub fn register(app: &tauri::AppHandle) {
                 }
             });
         })
-        .expect("register shortcut");
+        .expect("Failed to register Ctrl+Alt+V shortcut");
 }
 

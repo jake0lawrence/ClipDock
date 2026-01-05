@@ -12,8 +12,9 @@ pub fn apply(mode: AutoStart) -> Result<()> {
     #[cfg(target_os = "windows")]
     {
         use std::fs;
-        let startup = home_dir()
-            .unwrap()
+        let home = home_dir()
+            .ok_or_else(|| anyhow::anyhow!("Failed to get home directory"))?;
+        let startup = home
             .join(r"AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup")
             .join("ClipDock.lnk");
         match mode {
@@ -31,7 +32,9 @@ pub fn apply(mode: AutoStart) -> Result<()> {
     #[cfg(target_os = "linux")]
     {
         use std::fs;
-        let dir = home_dir().unwrap().join(".config/autostart");
+        let home = home_dir()
+            .ok_or_else(|| anyhow::anyhow!("Failed to get home directory"))?;
+        let dir = home.join(".config/autostart");
         std::fs::create_dir_all(&dir)?;
         let desktop = dir.join("clipdock.desktop");
         match mode {

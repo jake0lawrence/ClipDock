@@ -7,7 +7,7 @@ use crate::{db, Settings};
 
 pub fn spawn(conn: rusqlite::Connection, notifier: broadcast::Sender<()>, settings: Arc<RwLock<Settings>>) {
     thread::spawn(move || {
-        let mut cb = Clipboard::new().expect("clipboard");
+        let mut cb = Clipboard::new().expect("Failed to initialize clipboard");
         let mut last = String::new();
 
         loop {
