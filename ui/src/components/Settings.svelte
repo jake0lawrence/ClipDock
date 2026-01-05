@@ -5,7 +5,7 @@
   onMount(async () => { await load(); settings.subscribe(v => local = { ...v }); });
 </script>
 
-<div class="p-4 space-y-4">
+<div class="p-4 space-y-4 dark:bg-zinc-800 bg-white dark:text-white text-zinc-900 rounded-lg">
   <label class="flex items-center gap-2">
     <input type="checkbox" bind:checked={local.dark} />
     Dark theme
@@ -13,7 +13,7 @@
 
   <label class="flex items-center gap-2">
     History size
-    <input type="number" min="5" max="50" bind:value={local.history} class="w-16 text-black"/>
+    <input type="number" min="5" max="50" bind:value={local.history} class="w-16 px-2 py-1 dark:bg-zinc-900 bg-zinc-100 dark:text-white text-zinc-900 rounded"/>
   </label>
 
   <label class="flex items-center gap-2">
@@ -21,7 +21,7 @@
     Launch on boot
   </label>
 
-  <button class="bg-blue-600 px-3 py-1 rounded" on:click={()=>save(local)}>
+  <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded" on:click={()=>save(local)}>
     Save
   </button>
 </div>
