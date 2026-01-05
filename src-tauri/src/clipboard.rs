@@ -1,9 +1,11 @@
 use std::{sync::mpsc, thread, time::Duration};
 use arboard::Clipboard;
 use tokio::sync::broadcast;
-use crate::db;
+use parking_lot::RwLock;
+use std::sync::Arc;
+use crate::{db, Settings};
 
-pub fn spawn(conn: rusqlite::Connection, notifier: broadcast::Sender<()>) {
+pub fn spawn(conn: rusqlite::Connection, notifier: broadcast::Sender<()>, settings: Arc<RwLock<Settings>>) {
     thread::spawn(move || {
         let mut cb = Clipboard::new().expect("clipboard");
         let mut last = String::new();
@@ -12,7 +14,8 @@ pub fn spawn(conn: rusqlite::Connection, notifier: broadcast::Sender<()>) {
             if let Ok(text) = cb.get_text() {
                 if text != last {
                     last = text.clone();
-                    let _ = db::push(&conn, &text);
+                    let max_history = settings.read().history;
+                    let _ = db::push(&conn, &text, max_history);
                     let _ = notifier.send(());
                 }
             }

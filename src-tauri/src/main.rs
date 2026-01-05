@@ -7,6 +7,7 @@ use tauri::Manager;
 use parking_lot::RwLock;
 use std::fs;
 use std::path::PathBuf;
+use std::sync::Arc;
 
 mod db;
 mod clipboard;
@@ -16,7 +17,7 @@ mod autostart;
 pub struct AppState {
     pub conn: Connection,
     pub notifier: broadcast::Sender<()>,
-    pub settings: RwLock<Settings>,
+    pub settings: Arc<RwLock<Settings>>,
     pub data_dir: PathBuf,
 }
 
@@ -56,19 +57,19 @@ fn main() {
             db::init(&conn).expect("failed to initialize database");
 
             // Load settings from file
-            let settings = load_settings_from_file(&data_dir);
+            let settings = Arc::new(RwLock::new(load_settings_from_file(&data_dir)));
 
             // Setup clipboard monitoring
             let (tx, _rx) = broadcast::channel::<()>(8);
             let conn_for_thread = Connection::open(&db_path)
                 .expect("failed to open database for clipboard thread");
-            clipboard::spawn(conn_for_thread, tx.clone());
+            clipboard::spawn(conn_for_thread, tx.clone(), settings.clone());
 
             // Store state
             app.manage(AppState {
                 conn,
                 notifier: tx,
-                settings: RwLock::new(settings),
+                settings,
                 data_dir,
             });
 

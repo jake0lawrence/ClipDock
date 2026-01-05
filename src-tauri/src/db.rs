@@ -21,7 +21,7 @@ pub fn init(conn: &Connection) -> Result<()> {
     )
 }
 
-pub fn push(conn: &Connection, text: &str) -> Result<()> {
+pub fn push(conn: &Connection, text: &str, max_history: usize) -> Result<()> {
     if text.trim().is_empty() {
         return Ok(());
     }
@@ -32,7 +32,7 @@ pub fn push(conn: &Connection, text: &str) -> Result<()> {
     conn.execute(
         &format!("DELETE FROM clips WHERE id NOT IN
                   (SELECT id FROM clips ORDER BY pinned DESC, ts DESC LIMIT {})",
-                 MAX_HISTORY),
+                 max_history),
         [],
     )?;
     Ok(())
