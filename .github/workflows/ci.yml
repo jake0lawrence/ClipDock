@@ -11,6 +11,12 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - name: Install pnpm
+        run: npm install -g pnpm
       - name: Install Tauri CLI
         run: cargo install tauri-cli --locked
       - name: Tauri build
